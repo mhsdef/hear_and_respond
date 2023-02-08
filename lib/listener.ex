@@ -28,7 +28,7 @@ defmodule HearHearNow.Listener do
     Stream.run(stream)
   end
 
-  defp apply_responder({regex, mod, fun}, %{text: text} = msg) do
+  defp apply_responder({regex, mod, fun}, %{"text" => text} = msg) do
     if Regex.match?(regex, text) do
       msg = %{msg | matches: find_matches(regex, text)}
       apply(mod, fun, [msg])
