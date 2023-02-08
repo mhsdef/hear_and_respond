@@ -1,17 +1,25 @@
-defmodule HearRespond.Listener do
-  alias HearRespond.ListenerSupervisor
+defmodule HearHearNow.Listener do
+  @moduledoc """
+  Base module for managing listeners. A listener is a module that contains
+  one or more `listen/1` functions that listen to a source and make the
+  decision when to accept the payload for response processing.
+  """
+  alias HearHearNow.ListenerSupervisor
 
-  @responders Application.compile_env(:hear_respond, :responders, [])
+  @listeners Application.compile_env(:hear_hear_now, :listeners, [])
+  @responders Application.compile_env(:hear_hear_now, :responders, [])
 
-  def listen(%{"type" => "message"} = event) do
-    {:ok, _pid} = Task.Supervisor.start_child(ListenerSupervisor, __MODULE__, :process, [event])
+  def listen(msg) do
+    Enum.each(@listeners, fn l -> l.listen(msg) end)
   end
 
-  def listen(_), do: nil
+  def accept(msg) do
+    {:ok, _pid} = Task.Supervisor.start_child(ListenerSupervisor, __MODULE__, :invoke, [msg])
+  end
 
-  def process(event) do
+  def invoke(event) do
     @responders
-    |> Enum.flat_map(fn mod -> mod.get_responders() end)
+    |> Enum.flat_map(fn {mod, _} -> mod.get_responders() end)
     |> dispatch(event)
   end
 
