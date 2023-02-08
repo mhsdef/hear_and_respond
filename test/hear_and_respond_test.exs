@@ -1,8 +1,8 @@
-defmodule HearAndRespondTest do
+defmodule HearRespondTest do
   use ExUnit.Case
-  doctest HearAndRespond
+  doctest HearRespond
 
   test "greets the world" do
-    assert HearAndRespond.hello() == :world
+    assert HearRespond.hello() == :world
   end
 end

@@ -1,4 +1,4 @@
-defmodule HearAndRespond.Responder do
+defmodule HearRespond.Responder do
   @moduledoc ~S"""
   Base module for building responders. A responder is a module which setups up
   handlers for hearing and responding to incoming messages.
@@ -118,12 +118,12 @@ defmodule HearAndRespond.Responder do
     quote location: :keep do
       @doc false
 
-      @name Application.compile_env!(:hear_and_respond, :preferred_name)
-      @aka Application.compile_env(:hear_and_respond, :aka)
+      @name Application.compile_env!(:hear_respond, :preferred_name)
+      @aka Application.compile_env(:hear_respond, :aka)
 
       respond =
         for {regex, mod, fun} <- @respond do
-          regex = HearAndRespond.Responder.respond_pattern(regex, @name, @aka)
+          regex = HearRespond.Responder.respond_pattern(regex, @name, @aka)
           {regex, mod, fun}
         end
 

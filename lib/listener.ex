@@ -1,7 +1,7 @@
-defmodule HearAndRespond.Listener do
-  alias HearAndRespond.ListenerSupervisor
+defmodule HearRespond.Listener do
+  alias HearRespond.ListenerSupervisor
 
-  @responders Application.compile_env(:hear_and_respond, :responders, [])
+  @responders Application.compile_env(:hear_respond, :responders, [])
 
   def listen(%{"type" => "message"} = event) do
     {:ok, _pid} = Task.Supervisor.start_child(ListenerSupervisor, __MODULE__, :process, [event])
