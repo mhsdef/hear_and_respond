@@ -19,7 +19,7 @@ defmodule HearHearNow.Listener do
 
   def invoke(event) do
     @responders
-    |> Enum.flat_map(fn {mod, _} -> mod.get_responders() end)
+    |> Enum.flat_map(fn mod -> mod.get_responders() end)
     |> dispatch(event)
   end
 
