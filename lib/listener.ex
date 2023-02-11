@@ -30,7 +30,7 @@ defmodule HearHearNow.Listener do
 
   defp apply_responder({regex, mod, fun}, %{"text" => text} = msg) do
     if Regex.match?(regex, text) do
-      msg = %{msg | matches: find_matches(regex, text)}
+      msg = Map.put(msg, :matches, find_matches(regex, text))
       apply(mod, fun, [msg])
     end
   end
