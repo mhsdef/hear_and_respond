@@ -1,29 +1,47 @@
-defmodule HearHearNow.Listener do
+defmodule HearHear.Listener do
   @moduledoc """
   Base module for managing listeners. A listener is a module that contains
-  one or more `listen/1` functions that listen to a source and make the
-  decision when to accept the payload for response processing.
+  one or more `listen/1` functions, listens to a messaging source, and
+  decides when to accept the payload for response processing.
   """
-  alias HearHearNow.ListenerSupervisor
+  alias HearHear.ListenerSupervisor
 
-  @listeners Application.compile_env(:hear_hear_now, :listeners, [])
-  @responders Application.compile_env(:hear_hear_now, :responders, [])
+  @listeners Application.compile_env(:hear_hear, :listeners, [])
+  @responders Application.compile_env(:hear_hear, :responders, [])
 
+  @doc """
+  Listen to any input, via a list of configured `HearHear.Listener`s
+  """
+  @spec listen(any) :: :ok
   def listen(msg) do
     Enum.each(@listeners, fn l -> l.listen(msg) end)
   end
 
-  def accept(msg) do
+  @doc """
+  Listeners can decide to `accept` messages that pass through them. Messages
+  can be any arbitrary `map`, but, they must have a `text` field.
+  """
+  @spec accept(map) :: {:ok, pid}
+  def accept(%{"text" => _text} = msg) do
     {:ok, _pid} = Task.Supervisor.start_child(ListenerSupervisor, __MODULE__, :invoke, [msg])
   end
 
-  def invoke(event) do
+  @doc """
+  Invoke the configured `HearHear.Responder`s. Load them from config and
+  dispatch the message to all of them.
+  """
+  @spec invoke(map) :: :ok
+  def invoke(%{"text" => _text} = msg) do
     @responders
     |> Enum.flat_map(fn mod -> mod.get_responders() end)
-    |> dispatch(event)
+    |> dispatch(msg)
   end
 
-  def dispatch(responders, msg) do
+  @doc """
+  Dispatch the given message to all the given responders
+  """
+  @spec dispatch([Module], map) :: :ok
+  def dispatch(responders, %{"text" => _text} = msg) do
     stream = Task.async_stream(responders, fn r -> apply_responder(r, msg) end)
     Stream.run(stream)
   end

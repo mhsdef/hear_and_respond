@@ -1,4 +1,4 @@
-defmodule HearHearNow.Responder do
+defmodule HearHear.Responder do
   @moduledoc ~S"""
   Base module for building responders. A responder is a module which setups up
   handlers for hearing and responding to incoming messages.
@@ -71,11 +71,11 @@ defmodule HearHearNow.Responder do
   end
 
   @doc """
-  Setups up an responder that will match when a message is prefixed with the bot's name.
+  Matches messages based on the regular expression when prefixed by name or aka.
   ## Example
-      # Give our bot's name is "alfred", this responder
+      # If our name name is "alice", this responder
       # would match for a message with the following text:
-      # "alfred hello"
+      # "alice hello"
 
       respond ~r/hello/, msg do
         # code to handle the message
@@ -118,12 +118,12 @@ defmodule HearHearNow.Responder do
     quote location: :keep do
       @doc false
 
-      @name Application.compile_env!(:hear_hear_now, :preferred_name)
-      @aka Application.compile_env(:hear_hear_now, :aka)
+      @name Application.compile_env!(:hear_hear, :preferred_name)
+      @aka Application.compile_env(:hear_hear, :aka)
 
       respond =
         for {regex, mod, fun} <- @respond do
-          regex = HearHearNow.Responder.respond_pattern(regex, @name, @aka)
+          regex = HearHear.Responder.respond_pattern(regex, @name, @aka)
           {regex, mod, fun}
         end
 
